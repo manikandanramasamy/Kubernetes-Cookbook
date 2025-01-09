@@ -146,26 +146,26 @@ sudo nano /etc/containerd/config.toml
 #### Paste the configuration into the file and save it.
 
 ```bash
-disabled_plugins = []
-imports = []
-oom_score = 0
-plugin_dir = ""
-required_plugins = []
-root = "/var/lib/containerd"
-state = "/run/containerd"
-version = 2
+  disabled_plugins = []
+  imports = []
+  oom_score = 0
+  plugin_dir = ""
+  required_plugins = []
+  root = "/var/lib/containerd"
+  state = "/run/containerd"
+  version = 2
 
-[cgroup]
+  [cgroup]
   path = ""
 
-[debug]
+  [debug]
   address = ""
   format = ""
   gid = 0
   level = ""
   uid = 0
 
-[grpc]
+  [grpc]
   address = "/run/containerd/containerd.sock"
   gid = 0
   max_recv_message_size = 16777216
@@ -175,190 +175,190 @@ version = 2
   tcp_tls_key = ""
   uid = 0
 
-[metrics]
+  [metrics]
   address = ""
   grpc_histogram = false
 
-[plugins]
+  [plugins]
 
   [plugins."io.containerd.gc.v1.scheduler"]
-    deletion_threshold = 0
-    mutation_threshold = 100
-    pause_threshold = 0.02
-    schedule_delay = "0s"
-    startup_delay = "100ms"
+  deletion_threshold = 0
+  mutation_threshold = 100
+  pause_threshold = 0.02
+  schedule_delay = "0s"
+  startup_delay = "100ms"
 
   [plugins."io.containerd.grpc.v1.cri"]
-    disable_apparmor = false
-    disable_cgroup = false
-    disable_hugetlb_controller = true
-    disable_proc_mount = false
-    disable_tcp_service = true
-    enable_selinux = false
-    enable_tls_streaming = false
-    ignore_image_defined_volumes = false
-    max_concurrent_downloads = 3
-    max_container_log_line_size = 16384
-    netns_mounts_under_state_dir = false
-    restrict_oom_score_adj = false
-    sandbox_image = "k8s.gcr.io/pause:3.5"
-    selinux_category_range = 1024
-    stats_collect_period = 10
-    stream_idle_timeout = "4h0m0s"
-    stream_server_address = "127.0.0.1"
-    stream_server_port = "0"
-    systemd_cgroup = false
-    tolerate_missing_hugetlb_controller = true
-    unset_seccomp_profile = ""
+  disable_apparmor = false
+  disable_cgroup = false
+  disable_hugetlb_controller = true
+  disable_proc_mount = false
+  disable_tcp_service = true
+  enable_selinux = false
+  enable_tls_streaming = false
+  ignore_image_defined_volumes = false
+  max_concurrent_downloads = 3
+  max_container_log_line_size = 16384
+  netns_mounts_under_state_dir = false
+  restrict_oom_score_adj = false
+  sandbox_image = "k8s.gcr.io/pause:3.5"
+  selinux_category_range = 1024
+  stats_collect_period = 10
+  stream_idle_timeout = "4h0m0s"
+  stream_server_address = "127.0.0.1"
+  stream_server_port = "0"
+  systemd_cgroup = false
+  tolerate_missing_hugetlb_controller = true
+  unset_seccomp_profile = ""
 
-    [plugins."io.containerd.grpc.v1.cri".cni]
-      bin_dir = "/opt/cni/bin"
-      conf_dir = "/etc/cni/net.d"
-      conf_template = ""
-      max_conf_num = 1
+  [plugins."io.containerd.grpc.v1.cri".cni]
+  bin_dir = "/opt/cni/bin"
+  conf_dir = "/etc/cni/net.d"
+  conf_template = ""
+  max_conf_num = 1
 
-    [plugins."io.containerd.grpc.v1.cri".containerd]
-      default_runtime_name = "runc"
-      disable_snapshot_annotations = true
-      discard_unpacked_layers = false
-      no_pivot = false
-      snapshotter = "overlayfs"
+  [plugins."io.containerd.grpc.v1.cri".containerd]
+  default_runtime_name = "runc"
+  disable_snapshot_annotations = true
+  discard_unpacked_layers = false
+  no_pivot = false
+  snapshotter = "overlayfs"
 
-      [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime]
-        base_runtime_spec = ""
-        container_annotations = []
-        pod_annotations = []
-        privileged_without_host_devices = false
-        runtime_engine = ""
-        runtime_root = ""
-        runtime_type = ""
+  [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime]
+    base_runtime_spec = ""
+    container_annotations = []
+    pod_annotations = []
+    privileged_without_host_devices = false
+    runtime_engine = ""
+    runtime_root = ""
+    runtime_type = ""
 
-        [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime.options]
+    [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime.options]
 
-      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
 
-        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-          base_runtime_spec = ""
-          container_annotations = []
-          pod_annotations = []
-          privileged_without_host_devices = false
-          runtime_engine = ""
-          runtime_root = ""
-          runtime_type = "io.containerd.runc.v2"
+    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+      base_runtime_spec = ""
+      container_annotations = []
+      pod_annotations = []
+      privileged_without_host_devices = false
+      runtime_engine = ""
+      runtime_root = ""
+      runtime_type = "io.containerd.runc.v2"
 
-          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-            BinaryName = ""
-            CriuImagePath = ""
-            CriuPath = ""
-            CriuWorkPath = ""
-            IoGid = 0
-            IoUid = 0
-            NoNewKeyring = false
-            NoPivotRoot = false
-            Root = ""
-            ShimCgroup = ""
-            SystemdCgroup = true
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+        BinaryName = ""
+        CriuImagePath = ""
+        CriuPath = ""
+        CriuWorkPath = ""
+        IoGid = 0
+        IoUid = 0
+        NoNewKeyring = false
+        NoPivotRoot = false
+        Root = ""
+        ShimCgroup = ""
+        SystemdCgroup = true
 
-      [plugins."io.containerd.grpc.v1.cri".containerd.untrusted_workload_runtime]
-        base_runtime_spec = ""
-        container_annotations = []
-        pod_annotations = []
-        privileged_without_host_devices = false
-        runtime_engine = ""
-        runtime_root = ""
-        runtime_type = ""
+  [plugins."io.containerd.grpc.v1.cri".containerd.untrusted_workload_runtime]
+    base_runtime_spec = ""
+    container_annotations = []
+    pod_annotations = []
+    privileged_without_host_devices = false
+    runtime_engine = ""
+    runtime_root = ""
+    runtime_type = ""
 
-        [plugins."io.containerd.grpc.v1.cri".containerd.untrusted_workload_runtime.options]
+    [plugins."io.containerd.grpc.v1.cri".containerd.untrusted_workload_runtime.options]
 
-    [plugins."io.containerd.grpc.v1.cri".image_decryption]
-      key_model = "node"
+  [plugins."io.containerd.grpc.v1.cri".image_decryption]
+  key_model = "node"
 
-    [plugins."io.containerd.grpc.v1.cri".registry]
-      config_path = ""
+  [plugins."io.containerd.grpc.v1.cri".registry]
+  config_path = ""
 
-      [plugins."io.containerd.grpc.v1.cri".registry.auths]
+  [plugins."io.containerd.grpc.v1.cri".registry.auths]
 
-      [plugins."io.containerd.grpc.v1.cri".registry.configs]
+  [plugins."io.containerd.grpc.v1.cri".registry.configs]
 
-      [plugins."io.containerd.grpc.v1.cri".registry.headers]
+  [plugins."io.containerd.grpc.v1.cri".registry.headers]
 
-      [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
 
-    [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]
-      tls_cert_file = ""
-      tls_key_file = ""
+  [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]
+  tls_cert_file = ""
+  tls_key_file = ""
 
   [plugins."io.containerd.internal.v1.opt"]
-    path = "/opt/containerd"
+  path = "/opt/containerd"
 
   [plugins."io.containerd.internal.v1.restart"]
-    interval = "10s"
+  interval = "10s"
 
   [plugins."io.containerd.metadata.v1.bolt"]
-    content_sharing_policy = "shared"
+  content_sharing_policy = "shared"
 
   [plugins."io.containerd.monitor.v1.cgroups"]
-    no_prometheus = false
+  no_prometheus = false
 
   [plugins."io.containerd.runtime.v1.linux"]
-    no_shim = false
-    runtime = "runc"
-    runtime_root = ""
-    shim = "containerd-shim"
-    shim_debug = false
+  no_shim = false
+  runtime = "runc"
+  runtime_root = ""
+  shim = "containerd-shim"
+  shim_debug = false
 
   [plugins."io.containerd.runtime.v2.task"]
-    platforms = ["linux/amd64"]
+  platforms = ["linux/amd64"]
 
   [plugins."io.containerd.service.v1.diff-service"]
-    default = ["walking"]
+  default = ["walking"]
 
   [plugins."io.containerd.snapshotter.v1.aufs"]
-    root_path = ""
+  root_path = ""
 
   [plugins."io.containerd.snapshotter.v1.btrfs"]
-    root_path = ""
+  root_path = ""
 
   [plugins."io.containerd.snapshotter.v1.devmapper"]
-    async_remove = false
-    base_image_size = ""
-    pool_name = ""
-    root_path = ""
+  async_remove = false
+  base_image_size = ""
+  pool_name = ""
+  root_path = ""
 
   [plugins."io.containerd.snapshotter.v1.native"]
-    root_path = ""
+  root_path = ""
 
   [plugins."io.containerd.snapshotter.v1.overlayfs"]
-    root_path = ""
+  root_path = ""
 
   [plugins."io.containerd.snapshotter.v1.zfs"]
-    root_path = ""
+  root_path = ""
 
-[proxy_plugins]
+  [proxy_plugins]
 
-[stream_processors]
+  [stream_processors]
 
   [stream_processors."io.containerd.ocicrypt.decoder.v1.tar"]
-    accepts = ["application/vnd.oci.image.layer.v1.tar+encrypted"]
-    args = ["--decryption-keys-path", "/etc/containerd/ocicrypt/keys"]
-    env = ["OCICRYPT_KEYPROVIDER_CONFIG=/etc/containerd/ocicrypt/ocicrypt_keyprovider.conf"]
-    path = "ctd-decoder"
-    returns = "application/vnd.oci.image.layer.v1.tar"
+  accepts = ["application/vnd.oci.image.layer.v1.tar+encrypted"]
+  args = ["--decryption-keys-path", "/etc/containerd/ocicrypt/keys"]
+  env = ["OCICRYPT_KEYPROVIDER_CONFIG=/etc/containerd/ocicrypt/ocicrypt_keyprovider.conf"]
+  path = "ctd-decoder"
+  returns = "application/vnd.oci.image.layer.v1.tar"
 
   [stream_processors."io.containerd.ocicrypt.decoder.v1.tar.gzip"]
-    accepts = ["application/vnd.oci.image.layer.v1.tar+gzip+encrypted"]
-    args = ["--decryption-keys-path", "/etc/containerd/ocicrypt/keys"]
-    env = ["OCICRYPT_KEYPROVIDER_CONFIG=/etc/containerd/ocicrypt/ocicrypt_keyprovider.conf"]
-    path = "ctd-decoder"
-    returns = "application/vnd.oci.image.layer.v1.tar+gzip"
+  accepts = ["application/vnd.oci.image.layer.v1.tar+gzip+encrypted"]
+  args = ["--decryption-keys-path", "/etc/containerd/ocicrypt/keys"]
+  env = ["OCICRYPT_KEYPROVIDER_CONFIG=/etc/containerd/ocicrypt/ocicrypt_keyprovider.conf"]
+  path = "ctd-decoder"
+  returns = "application/vnd.oci.image.layer.v1.tar+gzip"
 
-[timeouts]
+  [timeouts]
   "io.containerd.timeout.shim.cleanup" = "5s"
   "io.containerd.timeout.shim.load" = "5s"
   "io.containerd.timeout.shim.shutdown" = "3s"
   "io.containerd.timeout.task.state" = "2s"
 
-[ttrpc]
+  [ttrpc]
   address = ""
   gid = 0
   uid = 0
@@ -426,27 +426,25 @@ kubeadm join <Master_Node_IP_or_NAT_IP>:6443 --token zcijug.ye3vrct74itrkesp \
 
 The kubectl cluster-info command provides information about the Kubernetes cluster's master and services, including the URL for the Kubernetes API server and the cluster's DNS service.
 
-    ```bash
-       kubectl cluster-info
-    ```
-
+```bash
+kubectl cluster-info
+```
 The command will display the addresses of the Kubernetes master and DNS services. For example:
 
 ```ruby
-   Kubernetes master is running at https://<Master_Node_IP_or_NAT_IP>:6443
-   KubeDNS is running at https://<Master_Node_IP_or_NAT_IP>:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+Kubernetes master is running at https://<Master_Node_IP_or_NAT_IP>:6443
+KubeDNS is running at https://<Master_Node_IP_or_NAT_IP>:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 ```
-
-    This helps you confirm the connectivity to the cluster and the status of the cluster services.
+This helps you confirm the connectivity to the cluster and the status of the cluster services.
 
 #### kubectl get pods -n kube-system
 
-    Following command will show the status of all pods running in the kube-system namespace, which contains essential Kubernetes system components:
+ Following command will show the status of all pods running in the kube-system namespace, which contains essential Kubernetes system components:
 
-    ```bash
-        kubectl get pods -n kube-system
-    ```
-    This allows you to monitor the health and status of core Kubernetes services, such as the API server, controller manager, scheduler, and DNS.
+  ```bash
+ kubectl get pods -n kube-system
+  ```
+  This allows you to monitor the health and status of core Kubernetes services, such as the API server, controller manager, scheduler, and DNS.
 
 #### To retrieve API server logs:
 
@@ -465,7 +463,6 @@ To inspect the events of a specific pod, such as kube-apiserver-<node-name>, use
 ```bash
 kubectl describe pod -n kube-system kube-apiserver-<node-name>
 ```
-
 This command will provide detailed information about the pod and any related events.
 
 #### Check SSL Errors:
@@ -488,7 +485,7 @@ sudo systemctl restart kubelet
 
 This can help resolve issues with the kubelet service and re-initiate the necessary processes.
 
-### Reset your cluster (on all nodes - this will delete the data on the machine executing the command) only in case of an error.
+### Reset your cluster (This will  delete the cluster related data on the machine executing below command) only in case of an error.
 
 ```bash
 sudo kubeadm reset
