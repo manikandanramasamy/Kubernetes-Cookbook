@@ -1,4 +1,4 @@
-# Kubernetes 1.30.8 Cluster Setup on Ubuntu Ubuntu 24.04.1 LTS
+# Kubernetes 1.30.8 Cluster Setup on Ubuntu 24.04.1 LTS
 
 This guide provides instructions for setting up a Kubernetes cluster (version 1.30.4) on Ubuntu 24.04.1 with a minimal server installation. The setup requires three Ubuntu 24.04 servers (with minimal installation): one for the master node and two for worker nodes.
 
