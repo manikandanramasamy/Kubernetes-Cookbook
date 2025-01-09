@@ -427,15 +427,16 @@ kubeadm join <Master_Node_IP_or_NAT_IP>:6443 --token zcijug.ye3vrct74itrkesp \
 The kubectl cluster-info command provides information about the Kubernetes cluster's master and services, including the URL for the Kubernetes API server and the cluster's DNS service.
 
     ```bash
-    kubectl cluster-info
+       kubectl cluster-info
     ```
 
 The command will display the addresses of the Kubernetes master and DNS services. For example:
 
-    ```ruby
-    Kubernetes master is running at https://<Master_Node_IP_or_NAT_IP>:6443
-    KubeDNS is running at https://<Master_Node_IP_or_NAT_IP>:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
-    ```
+```ruby
+   Kubernetes master is running at https://<Master_Node_IP_or_NAT_IP>:6443
+   KubeDNS is running at https://<Master_Node_IP_or_NAT_IP>:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+```
+
     This helps you confirm the connectivity to the cluster and the status of the cluster services.
 
 #### kubectl get pods -n kube-system
@@ -443,20 +444,19 @@ The command will display the addresses of the Kubernetes master and DNS services
     Following command will show the status of all pods running in the kube-system namespace, which contains essential Kubernetes system components:
 
     ```bash
-
-    kubectl get pods -n kube-system
+        kubectl get pods -n kube-system
     ```
     This allows you to monitor the health and status of core Kubernetes services, such as the API server, controller manager, scheduler, and DNS.
 
 #### To retrieve API server logs:
 
-    The following command will retrieve the API server logs from the kubelet service:
+The following command will retrieve the API server logs from the kubelet service:
 
 ```bash
- sudo journalctl -u kubelet | grep kube-apiserver
+sudo journalctl -u kubelet | grep kube-apiserver
 ```
 
-    This command will filter the logs to show entries related to the Kubernetes API server, helping you diagnose issues or monitor activity.
+This command will filter the logs to show entries related to the Kubernetes API server, helping you diagnose issues or monitor activity.
 
 #### Inspect Pod Events:
 
@@ -483,7 +483,7 @@ This will help you troubleshoot any SSL-related issues when connecting to the AP
 If you need to restart the kubelet service on the node, use this command:
 
 ```bash
-    sudo systemctl restart kubelet
+sudo systemctl restart kubelet
 ```
 
 This can help resolve issues with the kubelet service and re-initiate the necessary processes.
@@ -491,9 +491,9 @@ This can help resolve issues with the kubelet service and re-initiate the necess
 ### Reset your cluster (on all nodes - this will delete the data on the machine executing the command) only in case of an error.
 
 ```bash
- sudo kubeadm reset
+sudo kubeadm reset
 ```
 
-    Use sudo kubeadm reset to reset or revert your cluster in case of any failure or unresolved errors.
+Use sudo kubeadm reset to reset or revert your cluster in case of any failure or unresolved errors.
 
-    The sudo kubeadm reset command is used to undo the changes made by kubeadm init or kubeadm join. It cleans up the node by removing Kubernetes configuration files, certificates, and network settings, effectively resetting the node to a pre-setup state. This command is useful when you need to reinitialize a node, troubleshoot, or remove a node from the cluster. After running the reset command, it's recommended to clear iptables and reboot the system for a clean setup
+The sudo kubeadm reset command is used to undo the changes made by kubeadm init or kubeadm join. It cleans up the node by removing Kubernetes configuration files, certificates, and network settings, effectively resetting the node to a pre-setup state. This command is useful when you need to reinitialize a node, troubleshoot, or remove a node from the cluster. After running the reset command, it's recommended to clear iptables and reboot the system for a clean setup
