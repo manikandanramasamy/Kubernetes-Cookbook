@@ -140,8 +140,9 @@ View available resources:
 
 ```bash
 kubectl api-resources
-Explain resources:
 ```
+Explain resources:
+
 ```bash
 kubectl explain pod
 kubectl explain <resource-type>
