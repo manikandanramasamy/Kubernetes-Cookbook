@@ -9,9 +9,11 @@ This guide provides instructions for setting up a Kubernetes cluster (version 1.
 - User with `sudo` privileges.
 - Configure bridge networking for external communication (e.g., SSH access) and NAT networking for communication between all nodes within the cluster.
 - For the master node, a minimum of 2 CPUs is required, and all other nodes should have at least 50 GB of hard disk space.
+
 ## Step-by-Step Installation
 
 ## Static IP Configuration (Optional)
+
 Set static IP addresses on all nodes using netplan.So that all node ip will not be changed
 
 Edit the netplan configuration:
@@ -19,7 +21,9 @@ Edit the netplan configuration:
 ```bash
 sudo nano /etc/netplan/50-cloud-init.yaml
 ```
+
 Update the file with the following configuration:
+
 ```yaml
 network:
   version: 2
@@ -30,12 +34,12 @@ network:
   bridges:
     br0:
       interfaces: [eth0]
-      addresses: [X.X.X.X/24]  # Replace with the desired static IP address
-      gateway4: X.X.X.X       # Replace with the gateway address
+      addresses: [X.X.X.X/24] # Replace with the desired static IP address
+      gateway4: X.X.X.X # Replace with the gateway address
       nameservers:
-        addresses: [8.8.8.8, 8.8.4.4]  # Use your preferred DNS
-
+        addresses: [8.8.8.8, 8.8.4.4] # Use your preferred DNS
 ```
+
 Apply changes:
 
 ```bash
@@ -43,24 +47,30 @@ sudo netplan apply
 ```
 
 ### Step 1: Disable Swap (all nodes)
+
 To check if swap is enabled, use the following command:
+
 ```bash
  free -h
 ```
+
 If swap is enabled, run the following commands to disable it:
+
 ```bash
 swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 ```
+
 Next, confirm that the swap has been commented out in the /etc/fstab file. Open the file with:
 
-sudo nano /etc/fstab 
+sudo nano /etc/fstab
 
 If the swap entry is not commented, please add a # at the beginning of the line to comment it out, then save the file
 
 ### Step 2: Enable IPv4 Packet Forwarding (all nodes)
 
 #### sysctl params required by setup, params persist across reboots
+
 ```bash
 cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
 net.ipv4.ip_forward = 1
@@ -68,16 +78,19 @@ EOF
 ```
 
 #### Apply sysctl params without reboot
+
 ```bash
 sudo sysctl --system
 ```
 
 ### Step 3: Verify IPv4 Packet Forwarding (all nodes)
+
 ```bash
 sysctl net.ipv4.ip_forward
 ```
 
 ### Step 4: Install containerd (all nodes)
+
 ```bash
 # Add Docker's official GPG key:
 sudo apt-get update
@@ -95,6 +108,7 @@ sudo apt-get update && sudo apt-get install containerd.io && systemctl enable --
 ```
 
 ### Step 5: Install CNI Plugin (all nodes)
+
 ```bash
 wget https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz
 mkdir -p /opt/cni/bin
@@ -102,6 +116,7 @@ tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.4.0.tgz
 ```
 
 ### Step 6: Forward IPv4 and Configure iptables (all nodes)
+
 ```bash
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
@@ -123,10 +138,13 @@ sysctl -p /etc/sysctl.conf
 ```
 
 ### Step 7: Modify containerd Configuration for systemd Support (all nodes)
+
 ```bash
 sudo nano /etc/containerd/config.toml
 ```
-#### Paste the configuration into the file and save it. 
+
+#### Paste the configuration into the file and save it.
+
 ```bash
 disabled_plugins = []
 imports = []
@@ -347,11 +365,13 @@ version = 2
 ```
 
 ### Step 8: Restart containerd and Check the Status (all nodes)
+
 ```bash
 sudo systemctl restart containerd && systemctl status containerd
 ```
 
 ### Step 9: Install kubeadm, kubelet, and kubectl (all nodes)
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gpg
@@ -366,10 +386,12 @@ sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
 ### Step 10: Initialize the Cluster and Install CNI (only on master)
+
 ```bash
 sudo kubeadm config images pull
 sudo kubeadm init --control-plane-endpoint <Master_Node_IP_or_NAT_IP>:6443 --pod-network-cidr 10.10.0.0/16
 ```
+
 #### After Initialzing the Cluster Connect to it and apply the CNI yaml (We're using Weave CNI in this guide)
 
 ```bash
@@ -383,85 +405,94 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 ```
+
 ```bash
 #Apply the CNI YAML
 kubectl apply -f https://reweave.azurewebsites.net/k8s/v1.30/net.yaml
 ```
 
 ### Step 11: Join Worker Nodes to the Cluster
+
 #### Run the command generated after initializing the master node on each worker node. For example:
+
 ```bash
 kubeadm join <Master_Node_IP_or_NAT_IP>:6443 --token zcijug.ye3vrct74itrkesp \
         --discovery-token-ca-cert-hash sha256:e9dd1a0638a5a1aa1850c16f4c9eeaa2e58d03fsefg0403f587c69502570c9cd
 ```
 
+### Useful debugging commands:
 
-###  Useful debugging commands:
+#### kubectl cluster-info
 
-####  kubectl cluster-info
-  The kubectl cluster-info command provides information about the Kubernetes cluster's master and services, including the URL for the Kubernetes API server and the cluster's DNS service.
+The kubectl cluster-info command provides information about the Kubernetes cluster's master and services, including the URL for the Kubernetes API server and the cluster's DNS service.
 
     ```bash
     kubectl cluster-info
     ```
-  The command will display the addresses of the Kubernetes master and DNS services. For example:
+
+The command will display the addresses of the Kubernetes master and DNS services. For example:
 
     ```ruby
     Kubernetes master is running at https://<Master_Node_IP_or_NAT_IP>:6443
     KubeDNS is running at https://<Master_Node_IP_or_NAT_IP>:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
     ```
     This helps you confirm the connectivity to the cluster and the status of the cluster services.
-####  kubectl get pods -n kube-system
+
+#### kubectl get pods -n kube-system
 
     Following command will show the status of all pods running in the kube-system namespace, which contains essential Kubernetes system components:
 
     ```bash
-    
+
     kubectl get pods -n kube-system
     ```
     This allows you to monitor the health and status of core Kubernetes services, such as the API server, controller manager, scheduler, and DNS.
 
-####  To retrieve API server logs:
+#### To retrieve API server logs:
+
     The following command will retrieve the API server logs from the kubelet service:
 
-   ```bash
-    sudo journalctl -u kubelet | grep kube-apiserver
-   ```
+```bash
+ sudo journalctl -u kubelet | grep kube-apiserver
+```
+
     This command will filter the logs to show entries related to the Kubernetes API server, helping you diagnose issues or monitor activity.
 
-####  Inspect Pod Events:
+#### Inspect Pod Events:
 
-  To inspect the events of a specific pod, such as kube-apiserver-<node-name>, use the command below:
+To inspect the events of a specific pod, such as kube-apiserver-<node-name>, use the command below:
 
-  ```bash
-  kubectl describe pod -n kube-system kube-apiserver-<node-name>
-  ```
-   This command will provide detailed information about the pod and any related events.
+```bash
+kubectl describe pod -n kube-system kube-apiserver-<node-name>
+```
+
+This command will provide detailed information about the pod and any related events.
 
 #### Check SSL Errors:
 
-  To check for SSL/TLS errors when connecting to the Kubernetes API server, use the following
+To check for SSL/TLS errors when connecting to the Kubernetes API server, use the following
 
-   ```bash
-        openssl s_client -connect <Master_Node_IP_or_NAT_IP>:6443
-   ```
- This will help you troubleshoot any SSL-related issues when connecting to the API server.
+```bash
+     openssl s_client -connect <Master_Node_IP_or_NAT_IP>:6443
+```
 
+This will help you troubleshoot any SSL-related issues when connecting to the API server.
 
 #### Restart Kubelet:
 
-  If you need to restart the kubelet service on the node, use this command:
+If you need to restart the kubelet service on the node, use this command:
 
-   ```bash
-       sudo systemctl restart kubelet
-   ```
+```bash
+    sudo systemctl restart kubelet
+```
+
 This can help resolve issues with the kubelet service and re-initiate the necessary processes.
 
 ### Reset your cluster (on all nodes - this will delete the data on the machine executing the command) only in case of an error.
 
-   ```bash
-    sudo kubeadm reset
-   ```
+```bash
+ sudo kubeadm reset
+```
 
     Use sudo kubeadm reset to reset or revert your cluster in case of any failure or unresolved errors.
 
