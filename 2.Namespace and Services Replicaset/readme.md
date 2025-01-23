@@ -93,9 +93,10 @@ spec:
       containers:
       - name: nginx
         image: nginx
-Useful Commands:
-Apply the ReplicaSet YAML:
 ```
+
+Apply the ReplicaSet YAML:
+
 ```bash
 kubectl apply -f rs.yaml
 ```
