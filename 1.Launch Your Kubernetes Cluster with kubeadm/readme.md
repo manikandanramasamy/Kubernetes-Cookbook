@@ -556,7 +556,7 @@ This ensures that Kubernetes reports the correct `InternalIP`
 #### Run the command generated after initializing the master node on each worker node. For example:
 
 ```bash
-kubeadm join <Master_Node_IP_or_NAT_IP>:6443 --token zcijug.ye3vrct74itrkesp \
+kubeadm join 10.10.10.1:6443 --token zcijug.ye3vrct74itrkesp \
         --discovery-token-ca-cert-hash sha256:e9dd1a0638a5a1aa1850c16f4c9eeaa2e58d03fsefg0403f587c69502570c9cd
 ```
 
@@ -660,8 +660,8 @@ kubectl cluster-info
 The command will display the addresses of the Kubernetes master and DNS services. For example:
 
 ```ruby
-Kubernetes master is running at https://<Master_Node_IP_or_NAT_IP>:6443
-KubeDNS is running at https://<Master_Node_IP_or_NAT_IP>:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+Kubernetes master is running at https://10.10.10.1:6443
+KubeDNS is running at https://10.10.10.1:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 ```
 This helps you confirm the connectivity to the cluster and the status of the cluster services.
 
@@ -698,7 +698,7 @@ This command will provide detailed information about the pod and any related eve
 To check for SSL/TLS errors when connecting to the Kubernetes API server, use the following
 
 ```bash
-     openssl s_client -connect <Master_Node_IP_or_NAT_IP>:6443
+     openssl s_client -connect 10.10.10.1:6443
 ```
 
 This will help you troubleshoot any SSL-related issues when connecting to the API server.
