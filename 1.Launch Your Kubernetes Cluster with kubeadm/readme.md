@@ -553,8 +553,12 @@ This ensures that Kubernetes reports the correct `InternalIP`
 
 ### Step 11: Join Worker Nodes to the Cluster
 
-#### Run the command generated after initializing the master node on each worker node. For example:
+#### Run the command generated after initializing the master node on each worker node. 
+```bash
+sudo kubeadm token create --print-join-command
+```
 
+For example:
 ```bash
 kubeadm join 10.10.10.1:6443 --token zcijug.ye3vrct74itrkesp \
         --discovery-token-ca-cert-hash sha256:e9dd1a0638a5a1aa1850c16f4c9eeaa2e58d03fsefg0403f587c69502570c9cd
