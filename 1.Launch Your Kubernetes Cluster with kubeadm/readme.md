@@ -10,41 +10,134 @@ This guide provides instructions for setting up a Kubernetes cluster (version 1.
 - Configure bridge networking for external communication (e.g., SSH access) and NAT networking for communication between all nodes within the cluster.
 - For the master node, a minimum of 2 CPUs is required, and all other nodes should have at least 50 GB of hard disk space.
 
+
+   ![System Design](images/k8s_virtualbox_diagram.png)
+
+
 ## Step-by-Step Installation
+# Kubernetes with VirtualBox (K8s Lab Setup)
 
-## Static IP Configuration (Optional)
+This guide documents the network configuration for setting up a Kubernetes cluster using VirtualBox with one master node and multiple worker nodes.
 
-Set static IP addresses on all nodes using netplan.So that all node ip will not be changed
+---
+
+   ![Network Diagram](images/NetworkDiagram.png)
+
+## 🖥️ Master Node Setup
+
+### 1. Network Adapters for Master
+- **Adapter 1**: NAT (for Internet access)
+- **Adapter 2**: Host-Only (for host access) [Please confirm enp0s8 created ]
+- **Adapter 3**: Internal Network (for cluster communication)[Please confirm enp0s9 created ]
+
+---
+
+### 2. Configure Host-Only Adapter (enp0s8)
+
+#### Create Host-Only Network:
+- In VirtualBox, go to **File > Host Network Manager**
+- Create a **Host-Only Network** and ensure **DHCP Server** is enabled.
+
+#### Update Netplan Configuration:
 
 Edit the netplan configuration:
 
 ```bash
 sudo nano /etc/netplan/50-cloud-init.yaml
 ```
-
-Update the file with the following configuration:
+Update with the following block:
 
 ```yaml
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    eth0:
-      dhcp4: false
-  bridges:
-    br0:
-      interfaces: [eth0]
-      addresses: [X.X.X.X/24] # Replace with the desired static IP address
-      gateway4: X.X.X.X # Replace with the gateway address
-      nameservers:
-        addresses: [8.8.8.8, 8.8.4.4] # Use your preferred DNS
+ enp0s8:
+  dhcp4: true
+ ```
+Apply Changes:
+```bash
+sudo netplan apply
+sudo reboot
 ```
+Verify IP Address:
+After reboot:
 
-Apply changes:
+```bash
+ip a
+```
+You should see an IP assigned to enp0s8.
+If not, manually request a DHCP lease:
+
+```bash
+sudo dhclient -1 enp0s8
+```
+💡 If dhclient is not installed, you can install it:
+
+```bash
+sudo apt update
+sudo apt install isc-dhcp-client
+```
+### 3. Configure Internal Network (enp0s9)
+Update Netplan for the internal adapter:
+
+```bash
+sudo nano /etc/netplan/50-cloud-init.yaml
+```
+Add or edit this block:
+
+```yaml
+enp0s9:
+  dhcp4: no
+  addresses: [10.10.10.1/24]
+```
+Apply configuration:
 
 ```bash
 sudo netplan apply
 ```
+---
+## 🖥️ Worker Node Setup
+
+### 1. Network Adapters for Master
+- **Adapter 1**: NAT (for Internet access)
+- **Adapter 2**: Internal Network (for cluster communication)[Please confirm enp0s8 created ]
+---
+### 2. Configure Internal Network (enp0s8)
+Update Netplan for the internal adapter:
+
+```bash
+sudo nano /etc/netplan/50-cloud-init.yaml
+```
+Add or edit this block:
+
+```yaml
+enp0s8:
+  dhcp4: no
+  addresses: [10.10.10.2/24]
+```
+Apply configuration:
+
+```bash
+sudo netplan apply
+```
+## Network Summary
+
+| Node        | Adapter   | Interface | Purpose               | IP Address          |
+| ----------- | --------- | --------- | --------------------- | ------------------- |
+| Master      | NAT       | enp0s3    | Internet access       | DHCP (auto)         |
+| Master      | Host-Only | enp0s8    | Access from host      | 192.x.x.x (DHCP) |
+| Master      | Internal  | enp0s9    | Cluster communication | `10.10.10.1`        |
+| Worker Node | NAT       | enp0s3    | Internet access       | DHCP (auto)         |
+| Worker Node | Internal  | enp0s9    | Cluster communication | `10.10.10.2+`       |
+
+
+
+##  At this point, we assume the VirtualBox VMs have been created with the following network adapters:
+
+Master Node: Adapter 1 (NAT), Adapter 2 (Host-Only), Adapter 3 (Internal)
+
+Worker Nodes: Adapter 1 (NAT), Adapter 2 (Internal)
+
+Now, we will proceed to install Kubernetes, initialize the cluster on the master node, and join the worker nodes to form a complete Kubernetes cluster.
+
+## Installing Kubernetes Components (kubeadm, kubelet, kubectl)
 
 ### Step 1: Disable Swap (all nodes)
 
@@ -389,8 +482,23 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 ```bash
 sudo kubeadm config images pull
-sudo kubeadm init --control-plane-endpoint <Master_Node_IP_or_NAT_IP>:6443 --pod-network-cidr 10.10.0.0/16
+
+sudo kubeadm init \
+  --pod-network-cidr=10.244.0.0/16 \
+  --service-cidr=10.100.0.0/16 \
+  --apiserver-advertise-address=10.10.10.1 \
+  --apiserver-cert-extra-sans=192.x.x.x
+
 ```
+📝 Explanation:
+
+  --pod-network-cidr: Used by your CNI plugin (e.g., Flannel uses 10.244.0.0/16)
+
+  --service-cidr: Internal virtual IP range for services
+
+  --apiserver-advertise-address: Internal IP of master (used by other nodes to connect)
+
+  --apiserver-cert-extra-sans: Adds your Host-Only IP (e.g., 192.168.56.101) to the API server certificate — allows secure access from the host using kubectl.
 
 #### After Initialzing the Cluster Connect to it and apply the CNI yaml (We're using Weave CNI in this guide)
 
@@ -411,6 +519,38 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 kubectl apply -f https://reweave.azurewebsites.net/k8s/v1.30/net.yaml
 ```
 
+#### Step 11: Setting a Static Node IP for Kubelet  
+*(Essential for stable internal communication between master and worker nodes)*
+
+By default, the kubelet may pick the wrong IP address (e.g., NAT or Host-Only interface), which can break internal communication within the cluster.
+
+To ensure each node advertises its **internal network IP** (e.g., `10.10.10.x`), you must explicitly set the `--node-ip` for kubelet.
+
+This step is required on **both the master node** (after `kubeadm init`) and **each worker node** (after `kubeadm join`).
+ 
+After kubeadm init, edit the kubelet config:
+
+```bash
+sudo nano /var/lib/kubelet/kubeadm-flags.env
+```
+Append this to the existing flags:
+
+```ini
+--node-ip=10.10.10.1
+```
+Then restart kubelet:
+
+```bash
+sudo systemctl restart kubelet
+```
+You can verify what IP kubelet is reporting to the cluster with:
+
+```bash
+kubectl get nodes -o wide
+
+```
+This ensures that Kubernetes reports the correct `InternalIP` 
+
 ### Step 11: Join Worker Nodes to the Cluster
 
 #### Run the command generated after initializing the master node on each worker node. For example:
@@ -419,6 +559,94 @@ kubectl apply -f https://reweave.azurewebsites.net/k8s/v1.30/net.yaml
 kubeadm join <Master_Node_IP_or_NAT_IP>:6443 --token zcijug.ye3vrct74itrkesp \
         --discovery-token-ca-cert-hash sha256:e9dd1a0638a5a1aa1850c16f4c9eeaa2e58d03fsefg0403f587c69502570c9cd
 ```
+
+After you've joined the cluster using the kubeadm join command, do the same:
+
+```bash
+sudo nano /var/lib/kubelet/kubeadm-flags.env
+```
+
+```ini
+--node-ip=10.10.10.2  # Use the actual internal IP of this worker node
+```
+Then restart:
+
+```bash
+sudo systemctl restart kubelet
+```
+
+⚠️ Note: Make sure you set --node-ip to the actual internal IP of the current node.
+For example:
+
+Master: --node-ip=10.10.10.1
+
+Worker 1: --node-ip=10.10.10.2
+
+Worker 2: --node-ip=10.10.10.3
+
+
+## Final Node Verification Steps
+
+#### 1. Check nodes status
+Run this from your machine with kubeconfig set up (control plane or your Windows host with access):
+
+```bash
+Copy
+Edit
+kubectl get nodes
+```
+What to look for:
+
+Nodes listed with STATUS Ready
+
+Appropriate ROLES (e.g., control-plane, worker)
+
+AGE and VERSION are as expected
+
+Example output:
+
+```pgsql
+Copy
+Edit
+NAME           STATUS   ROLES           AGE     VERSION
+master-node    Ready    control-plane   1d      v1.27.1
+worker-node1   Ready    <none>          1d      v1.27.1
+```
+2. Check system pods in kube-system namespace
+Verify core components are running:
+
+```bash
+kubectl get pods -n kube-system
+```
+All pods should be Running or Completed, no CrashLoopBackOff or errors.
+
+3. Verify networking
+Try a simple pod to test networking:
+
+```bash
+kubectl run busybox --image=busybox --command -- sleep 3600
+kubectl exec -it busybox -- ping -c 3 google.com
+kubectl delete pod busybox
+```
+This confirms pods can reach outside networks.
+
+4. Check kubelet service on each node
+On each node (especially if you have access):
+
+```bash
+sudo systemctl status kubelet
+```
+It should be active (running) without errors.
+
+5. Check certificates and cluster-info
+```bash
+kubectl cluster-info
+```
+Should return API server URL and other info without errors.
+ 
+ 
+---
+---
 
 ### Useful debugging commands:
 
