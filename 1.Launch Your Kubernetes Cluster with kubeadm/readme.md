@@ -125,7 +125,7 @@ sudo netplan apply
 | Master      | Host-Only | enp0s8    | Access from host      | 192.x.x.x (DHCP) |
 | Master      | Internal  | enp0s9    | Cluster communication | `10.10.10.1`        |
 | Worker Node | NAT       | enp0s3    | Internet access       | DHCP (auto)         |
-| Worker Node | Internal  | enp0s9    | Cluster communication | `10.10.10.2+`       |
+| Worker Node | Internal  | enp0s8    | Cluster communication | `10.10.10.2+`       |
 
 
 
@@ -595,8 +595,6 @@ Worker 2: --node-ip=10.10.10.3
 Run this from your machine with kubeconfig set up (control plane or your Windows host with access):
 
 ```bash
-Copy
-Edit
 kubectl get nodes
 ```
 What to look for:
@@ -610,8 +608,6 @@ AGE and VERSION are as expected
 Example output:
 
 ```pgsql
-Copy
-Edit
 NAME           STATUS   ROLES           AGE     VERSION
 master-node    Ready    control-plane   1d      v1.27.1
 worker-node1   Ready    <none>          1d      v1.27.1
